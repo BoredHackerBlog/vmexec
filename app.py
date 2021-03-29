@@ -108,7 +108,7 @@ def task_processor():
                     db.session.commit()
                     vm_process_thread = threading.Thread(target=vm_process, args=(vm.id, task.id))
                     vm_process_thread.start()
-                    del vm #there was a bug and this fixes. idk what im doing tbh
+                    del vm #there was a bug and this fixes it. idk what im doing tbh. bug was that task 2 and 3 started uploading and opening files in the same running VM.
                     break
                 # if vm specific then find vm, then start
                 elif task.vmname != None:
