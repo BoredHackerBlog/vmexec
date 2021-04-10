@@ -51,7 +51,7 @@ db.create_all()
 admin.add_view(ModelView(VMStatus, db.session))
 admin.add_view(ModelView(InputTask, db.session))
 
-#CHANGME, add your VM's here
+#CHANGEME, add your VM's here
 db.session.add(VMStatus(name="winVM",ip="10.0.0.178",snapshot="Snapshot2", available=True))
 db.session.commit()
 
