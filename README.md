@@ -1,5 +1,7 @@
-# vmexec (work in progress)
+# vmexec
 This project takes in a file via webui, runs a VM, puts the file on the VM, and opens/executes the file (think cuckoo/cape sandbox but without any analysis at all)
+
+blog post: http://www.boredhackerblog.info/2021/04/creating-malware-sandbox-for-sysmon-and.html
 
 # Use case
 This project is similar (well only the VM start/stop and file upload open/execute parts) to cuckoo or cape sandbox but I don't need any deep analysis or any of the advanced features both of those provide. I just wanted to open files in a VM (any available or specific one) without getting anything in return from the VM. 
