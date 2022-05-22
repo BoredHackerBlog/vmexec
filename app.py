@@ -15,9 +15,11 @@ import subprocess
 import os
 
 vboxmanage = "/usr/bin/VBoxManage" #CHANGME your vboxmanage binary, this should be default location on ubuntu
-upload_folder = "/tmp/trash" #CHANGME this is where uploaded files will go
+upload_folder = "/tmp/trash/upload" #CHANGME this is where uploaded files will go
+download_folder = "/tmp/trash/download" #CHANGEME this is where artifacts are downloaded to
 
-os.system("mkdir "+upload_folder) #this creates a folder for uploading files
+os.system("mkdir -p "+upload_folder) #this creates a folder for uploading files
+os.system("mkdir -p "+download_folder)
 
 max_vms_running = 1 #CHANGEME amount of VM's running at once
 
@@ -52,7 +54,7 @@ admin.add_view(ModelView(VMStatus, db.session))
 admin.add_view(ModelView(InputTask, db.session))
 
 #CHANGEME, add your VM's here
-db.session.add(VMStatus(name="winVM",ip="10.0.0.178",snapshot="Snapshot2", available=True))
+db.session.add(VMStatus(name="winVM",ip="192.168.56.101",snapshot="Snapshot5", available=True))
 db.session.commit()
 
 def vm_start(name, snapshot):
@@ -85,8 +87,15 @@ def vm_process(vmid, taskid):
             binary_data = xmlrpc.client.Binary(handle.read())
         filename = task.filepath.split('/')[-1]
         conn.upload_file("C:/%s"%(filename),binary_data)
+        conn.clean_logs()
+        conn.start_wlb()
         conn.execute("C:/%s"%(filename))
         time.sleep(task.timeout)
+        time.sleep(10) #seems like if the timeout time is too small then evtx will be empty
+        conn.collect()
+        dl_filepath = download_folder+"/"+str(vmid)+"_"+str(taskid)+"_"+str(time.time())+".zip"
+        with open(dl_filepath, "wb") as handle:
+            handle.write(conn.download_file("C:/collection.zip").data)
     vm_stop(vm.name) # stop the VM
     vm.available = True
     db.session.commit()
