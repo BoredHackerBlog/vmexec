@@ -1,12 +1,10 @@
 # vmexec
-This project takes in a file via webui, runs a VM, puts the file on the VM, and opens/executes the file (think cuckoo/cape sandbox but without any analysis at all)
+This project takes in a file via webui, runs a VM, puts the file on the VM, and opens/executes the file (think cuckoo/cape sandbox but without any analysis at all) and also gets evtx files
 
-blog post: http://www.boredhackerblog.info/2021/04/creating-malware-sandbox-for-sysmon-and.html
+blog post: http://www.boredhackerblog.info/2021/04/creating-malware-sandbox-for-sysmon-and.html (old, use this https://github.com/BoredHackerBlog/vmexec/tree/8fadb26c93244c02ee5d4c1f9c95769650035842 )
 
 # Use case
-This project is similar (well only the VM start/stop and file upload open/execute parts) to cuckoo or cape sandbox but I don't need any deep analysis or any of the advanced features both of those provide. I just wanted to open files in a VM (any available or specific one) without getting anything in return from the VM. 
-
-One of the use cases is to forward logs from the VM's to somewhere else and just open/execute file in it. The VM's can also contain EDR/AV solutions which can be used for analysis of the file.
+This project is similar (well only the VM start/stop and file upload open/execute parts) to cuckoo or cape sandbox but I don't need any deep analysis or any of the advanced features both of those provide. I just wanted to open files in a VM (any available or specific one) and get evtx files and json event data. 
 
 # Technologies
 - Python3
@@ -19,9 +17,28 @@ One of the use cases is to forward logs from the VM's to somewhere else and just
 # Running the project
 - Clone/download the project
 - Install packages and libraries
-- Create a VM, set static ip, intall python3+, disable firewall, run agent.py as an admin, and take a snapshot with agent.py running (your host should able to access port 8000 on guest VM)
+- Create a Windows VM or download IE VM
+- Set static IP that host can access (i recommend adding host-only adapter)
+- disable firewall, disable antivirus
+- enable process and powershell logging by running the following as admin
+```
+echo Enabling process and command line auditing
+auditpol /Set /subcategory:"Process Creation" /Success:Enable
+auditpol /Set /subcategory:"Process Termination" /Success:Enable
+reg add HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit\ /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1
+
+echo Enabling powershell logging and transcript
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging" /v EnableModuleLogging /t REG_DWORD /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ModuleLogging\ModuleNames" /v * /t REG_SZ /d * /f /reg:64
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" /v EnableScriptBlockLogging /t REG_DWORD /d 00000001 /f /reg:64
+```
+- install sysmon and use the following configuration https://github.com/olafhartong/sysmon-modular/blob/master/sysmonconfig.xml
+- download and put winlogbeat.exe in c:\ and use winlogbeat.yml thats in this repo in c:\
+- install any other software you need (Office, Adobe, etc...) and 
+- put agent.py in the VM and run it as an admin then take a snapshot
+- add VM info and snapshot info to app.py (find #CHANGEME)
 - Modify the code, look for #CHANGEME
-- Run "flask run" from project directory and visit localhost:5000 in your browser.
+- Run "flask run" or "python3 app.py" from project directory and visit localhost:5000 in your browser.
 
 # Modifying the project
 agent.py (which will be running in the VM) can be modified by editing the MyFuncs class and adding more functions. Check Python3 xmlrpc documentation.
