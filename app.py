@@ -87,15 +87,14 @@ def vm_process(vmid, taskid):
             binary_data = xmlrpc.client.Binary(handle.read())
         filename = task.filepath.split('/')[-1]
         conn.upload_file("C:/%s"%(filename),binary_data)
-        conn.clean_logs()
-        conn.start_wlb()
+        conn.start_aurora()
+        time.sleep(60) # this needs to be changed depending on how long it takes for aurora to start based on the system resources and config used
         conn.execute("C:/%s"%(filename))
         time.sleep(task.timeout)
         time.sleep(10) #seems like if the timeout time is too small then evtx will be empty
-        conn.collect()
-        dl_filepath = download_folder+"/"+str(vmid)+"_"+str(taskid)+"_"+str(time.time())+".zip"
+        dl_filepath = download_folder+"/"+str(vmid)+"_"+str(taskid)+"_"+str(time.time())+".json"
         with open(dl_filepath, "wb") as handle:
-            handle.write(conn.download_file("C:/collection.zip").data)
+            handle.write(conn.download_file("C:/aurora_logs.json").data)
     vm_stop(vm.name) # stop the VM
     vm.available = True
     db.session.commit()

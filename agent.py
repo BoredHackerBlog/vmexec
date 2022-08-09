@@ -19,27 +19,9 @@ with SimpleXMLRPCServer(('0.0.0.0', 8000),
         #just to see if connection is working or not/if VM is up or not
         def ping(self):
             return True
-        
-        def clean_logs(self):
-            logs = ["security", "system", "microsoft-windows-powershell/operational", "microsoft-windows-sysmon/operational"]
-            for alog in logs:
-                subprocess.Popen(["wevtutil","cl",alog],shell=True)
-            return True
 
-        def start_wlb(self):
-            subprocess.Popen(["c:/winlogbeat.exe", "-c", "c:/winlogbeat.yml"], shell=True)
-            return True
-
-        #zip files together for collection
-        def collect(self):
-            files = ['C:/windows/system32/winevt/logs/Microsoft-Windows-Powershell%4Operational.evtx', 'C:/windows/system32/winevt/logs/System.evtx','C:/windows/system32/winevt/logs/Security.evtx','C:/windows/system32/winevt/logs/Microsoft-Windows-Sysmon%4Operational.evtx']
-            files = files + glob.glob("C:/winlogbeat*.ndjson")
-            with zipfile.ZipFile("C:/collection.zip", mode="w") as archive:
-                for afile in files:
-                    try:
-                        archive.write(afile, basename(afile))
-                    except:
-                        print("not found:", afile)
+        def start_aurora(self):
+            subprocess.Popen(["start", "start_aurora.bat"], shell=True)
             return True
 
         #allows the host to upload file to VM
