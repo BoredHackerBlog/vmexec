@@ -40,6 +40,11 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Scrip
 - Modify the code, look for #CHANGEME
 - Run "flask run" or "python3 app.py" from project directory and visit localhost:5000 in your browser.
 
+# Using command line
+```
+curl 'http://X.X.X.X:5000/' -X 'POST' -F "file=@test.bat" -F "timeout=60" -F "vmname=Any"
+```
+
 # Modifying the project
 agent.py (which will be running in the VM) can be modified by editing the MyFuncs class and adding more functions. Check Python3 xmlrpc documentation.
 
